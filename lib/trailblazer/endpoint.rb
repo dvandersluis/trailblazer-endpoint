@@ -47,7 +47,7 @@ module Trailblazer
       # end
       def endpoint(operation_class, options={}, &block)
         handlers = Handlers::Rails.new(self, options).()
-        Endpoint.(operation_class, handlers, *options[:args], &block)
+        Endpoint.(operation_class, handlers, options[:args], &block)
       end
     end
   end
