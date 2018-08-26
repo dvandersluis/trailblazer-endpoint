@@ -23,13 +23,17 @@ module Trailblazer::Endpoint::Handlers
           controller.head 401
         end
 
+        m.created do |result|
+          if @representer
+            controller.render json: @representer.new(result[:model]), status: 201
+          else
+            controller.head 201, location: controller.url_for([result[:model], only_path: true])
+          end
+        end
+
         m.present do |result|
           representer = @representer || result["representer.serializer.class"]
           controller.render json: representer.new(result[:model]), status: 200
-        end
-
-        m.created do |result|
-          controller.head 201, location: controller.url_for([result[:model], only_path: true])
         end
 
         m.success do |result|
