@@ -8,18 +8,37 @@ module Trailblazer::Endpoint::Handlers
   class Rails
     def initialize(controller, options)
       @controller = controller
+      @representer = options[:present] if options[:present].is_a?(Class)
     end
 
     attr_reader :controller
 
     def call
       ->(m) do
-        m.not_found       { |result| controller.head 404 }
-        m.unauthenticated { |result| controller.head 401 }
-        m.present         { |result| controller.render json: result["representer.serializer.class"].new(result[:model]), status: 200 }
-        m.created         { |result| controller.head 201, location: controller.url_for([result[:model], only_path: true]) }
-        m.success         { |result| controller.head 200, location: controller.url_for([result[:model], only_path: true]) }
-        m.invalid         { |result| controller.render json: result["representer.errors.class"].new(result['result.contract.default'].errors).to_json, status: 422 }
+        m.not_found do |result|
+          controller.head 404
+        end
+
+        m.unauthenticated do |result|
+          controller.head 401
+        end
+
+        m.present do |result|
+          representer = @representer || result["representer.serializer.class"]
+          controller.render json: representer.new(result[:model]), status: 200
+        end
+
+        m.created do |result|
+          controller.head 201, location: controller.url_for([result[:model], only_path: true])
+        end
+
+        m.success do |result|
+          controller.head 200, location: controller.url_for([result[:model], only_path: true])
+        end
+
+        m.invalid do |result|
+          controller.render json: result["representer.errors.class"].new(result['result.contract.default'].errors).to_json, status: 422
+        end
       end
     end
   end

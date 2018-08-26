@@ -6,7 +6,7 @@ module Trailblazer
     # also, i want this to be easily extendable.
     Matcher = Dry::Matcher.new(
       present: Dry::Matcher::Case.new( # DISCUSS: the "present" flag needs some discussion.
-        match:   ->(result) { result.success? && result["present"] },
+        match:   ->(result) { result.success? && result[:present] },
         resolve: ->(result) { result }),
       success: Dry::Matcher::Case.new(
         match:   ->(result) { result.success? },
@@ -47,7 +47,7 @@ module Trailblazer
       # end
       def endpoint(operation_class, options={}, &block)
         handlers = Handlers::Rails.new(self, options).()
-        args = { params: params }.merge(options.fetch(:args, {}))
+        args = { params: params, present: options[:present] }.merge(options.fetch(:args, {}))
         Endpoint.(operation_class, handlers, args, &block)
       end
     end
