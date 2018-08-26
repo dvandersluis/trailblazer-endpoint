@@ -47,7 +47,8 @@ module Trailblazer
       # end
       def endpoint(operation_class, options={}, &block)
         handlers = Handlers::Rails.new(self, options).()
-        Endpoint.(operation_class, handlers, { params: params }.merge(options.fetch(:args, {})), &block)
+        args = { params: params }.merge(options.fetch(:args, {}))
+        Endpoint.(operation_class, handlers, args, &block)
       end
     end
   end

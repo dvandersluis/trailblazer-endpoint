@@ -8,7 +8,6 @@ module Trailblazer::Endpoint::Handlers
   class Rails
     def initialize(controller, options)
       @controller = controller
-      @path       = options[:path]
     end
 
     attr_reader :controller
@@ -18,8 +17,8 @@ module Trailblazer::Endpoint::Handlers
         m.not_found       { |result| controller.head 404 }
         m.unauthenticated { |result| controller.head 401 }
         m.present         { |result| controller.render json: result["representer.serializer.class"].new(result[:model]), status: 200 }
-        m.created         { |result| controller.head 201, location: "#{@path}/#{result[:model].id}" }
-        m.success         { |result| controller.head 200, location: "#{@path}/#{result[:model].id}" }
+        m.created         { |result| controller.head 201, location: controller.url_for([result[:model], only_path: true]) }
+        m.success         { |result| controller.head 200, location: controller.url_for([result[:model], only_path: true]) }
         m.invalid         { |result| controller.render json: result["representer.errors.class"].new(result['result.contract.default'].errors).to_json, status: 422 }
       end
     end
