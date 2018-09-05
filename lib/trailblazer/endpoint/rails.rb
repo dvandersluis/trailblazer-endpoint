@@ -1,4 +1,4 @@
-require "trailblazer/endpoint"
+require 'trailblazer/endpoint'
 
 module Trailblazer::Endpoint::Handlers
   # Generic matcher handlers for a Rails API backend.
@@ -15,11 +15,11 @@ module Trailblazer::Endpoint::Handlers
 
     def call
       ->(m) do
-        m.not_found do |result|
+        m.not_found do
           controller.head 404
         end
 
-        m.unauthenticated do |result|
+        m.unauthenticated do
           controller.head 401
         end
 
@@ -32,7 +32,7 @@ module Trailblazer::Endpoint::Handlers
         end
 
         m.present do |result|
-          representer = @representer || result["representer.serializer.class"]
+          representer = @representer || result['representer.serializer.class']
           controller.render json: representer.new(result[:model]), status: 200
         end
 
@@ -41,7 +41,11 @@ module Trailblazer::Endpoint::Handlers
         end
 
         m.invalid do |result|
-          controller.render json: result["representer.errors.class"].new(result['result.contract.default'].errors).to_json, status: 422
+          controller.render json: result['representer.errors.class'].new(result['result.contract.default'].errors).to_json, status: 422
+        end
+
+        m.other do
+          controller.head 204
         end
       end
     end

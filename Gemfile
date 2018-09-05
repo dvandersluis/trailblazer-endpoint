@@ -11,3 +11,5 @@ gem "trailblazer", path: "../trailblazer"
 # gem "trailblazer-operation", path: "../operation"
 
 gem "dry-validation"
+
+gem 'uber'
