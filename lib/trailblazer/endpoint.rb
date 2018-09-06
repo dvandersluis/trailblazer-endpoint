@@ -8,19 +8,17 @@ module Trailblazer
       new.(result, matcher.(), handlers, &block)
     end
 
-    def call(result, matcher, handlers=nil, &block)
-      matcher.(result, &block) and return if block_given? # evaluate user blocks first.
-      matcher.(result, &handlers)     # then, generic Rails handlers in controller context.
+    def call(result, matcher, handlers=nil)
+      matcher.(result, &handlers)
     end
 
     module Controller
-      # endpoint(Create) do |m|
-      #   m.not_found { |result| .. }
-      # end
-      def endpoint(operation_class, matcher: Matcher, **options, &block)
-        handlers = Handlers::Rails.new(self, options).()
+      def endpoint(operation_class, matcher: Matcher, handler: Handlers::Rails, **options, &block)
+        handler = Class.new(handler)
+        handler.class_eval(&block) if block_given?
+
         args = { params: params, present: options[:present] }.merge(options.fetch(:args, {}))
-        Endpoint.(operation_class, matcher, handlers, args, &block)
+        Endpoint.(operation_class, matcher, handler.new(self, options).(), args)
       end
     end
   end
