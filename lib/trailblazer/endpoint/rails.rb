@@ -47,6 +47,10 @@ module Trailblazer::Endpoint::Handlers
         m.other do
           controller.head 204
         end
+
+        m.failure do
+          controller.head 500
+        end
       end
     end
   end

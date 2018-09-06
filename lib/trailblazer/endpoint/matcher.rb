@@ -22,11 +22,13 @@ module Trailblazer
         end
       end
 
+      match(:success, &:success?)
+
+      match(:failure, &:failure?)
+
       match(:present) do |result|
         result.success? && result[:present]
       end
-
-      match(:success, &:success?)
 
       match(:created) do |result|
         result.success? && result['model.action'] == :new
